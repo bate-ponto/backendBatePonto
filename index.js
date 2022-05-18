@@ -1,18 +1,29 @@
-const http = require("http");
-const { MongoClient } = require("mongodb");
-const client = new MongoClient(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const express = require("express");
+const app = express();
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-client.connect((err) => {
-  client.close();
-});
+const MONGODB_USER = 'batePontoFadergs';
+const MONGODB_PASSWORD = encodeURIComponent('#batePonto2022'); 
+const MONGODB_DATABASE = 'batePontoApi';
+const MONGODB_URL = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@cluster0.lpti6.mongodb.net/${MONGODB_DATABASE}?retryWrites=true&w=majority`;
 
-//create a server object:
-http
-  .createServer(function (req, res) {
-    res.write("cu bosta mijo!"); //write a response to the client
-    res.end(); //end the response
+const TimeRegisterRoutes = require('./routes/TimeRegisterRoutes');
+
+app.use(
+  express.urlencoded({
+    extended: true,
   })
-  .listen(8080); //the server object listens on port 8080
+);
+
+app.use(express.json());
+app.use('/', TimeRegisterRoutes);
+
+mongoose.connect(MONGODB_URL)
+  .then(() => {
+    console.log({ message: 'connected' });
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.error({ message: 'Connection fail', error: err });
+  });
